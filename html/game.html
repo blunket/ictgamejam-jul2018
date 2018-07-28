@@ -8,10 +8,68 @@
 <body>
     <div id="particle"></div>
 
-    <div id="story"></div>
+    <div id="story">
+        <div class="row">
+            <div id="sun">
+                <img src="../assets/sun.svg" alt="Sun">
+            </div>
+            <div id="moon">
+                <img src="../assets/moon.svg" alt="Moon">
+            </div>
+            <div id="earth">
+                <img src="../assets/earth.svg" alt="Earth">
+            </div>
+        </div>
+        <div class="row">
+            <span id="typedjs"></span>
+        </div>
+    </div>
+
+    <div id="controls">
+        <div class="row">
+            <h2>Survive as long as possible!</h2>
+        </div>
+        <div class="row">
+            <table>
+                <tr>
+                    <td>
+                        <img src="../assets/earth.svg" alt="Earth" id="earth-icon">
+                    </td>
+                    <td>You.</td>
+                </tr>
+                <tr>
+                    <td>
+                        <img src="../assets/mouse.png" alt="Mouse">
+                    </td>
+                    <td>
+                        Move Mouse: Control shield's position.<br>
+                        Left Click: Emergency shield.
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <img src="../assets/wasd.png" alt="Arrows">
+                    </td>
+                    <td>
+                        Move.
+                    </td>
+                </tr>
+            </table>
+            <h4>Click to begin!</h4>
+        </div>
+    </div>
+
+    <div id="game-div">
+        <canvas id="game"></canvas>
+    </div>
+
+    <audio id="suntheme" src="../music/Tenuous Worlds.mp3" loop="loop"></audio>
+    <audio id="moontheme" src="../music/Broken Exchange.mp3" loop="loop"></audio>
+    <audio id="gametheme" src="../music/Earthy Answer.mp3" loop="loop"></audio>
 
     <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
     <script src="../js/jquery-3.3.1.min.js"></script>
+    <script src="../js/jquery.ui.shake.min.js"></script>
     <script>if (window.module) module = window.module;</script>
     <script src="../js/particles.min.js"></script>
     <script>

@@ -2,3 +2,95 @@
     opacity: 0;
     transition: opacity 3s;
 }
+
+#story {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    text-align: center;
+    font-size: 36px;
+}
+#controls, #story {
+    top: 0px;
+    left: 0px;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    color: #fff;
+}
+
+#controls {
+    display: none;
+    background-color: rgba(255, 255, 255, 0.5);
+    font-family: 'Oswald';
+    font-weight: 400;
+    font-size: 28px;
+}
+#controls h2, #controls h4 {
+    text-align: center;
+}
+#controls table {
+    margin: 20px auto 0px;
+}
+#controls td {
+    padding: 0px 20px;
+}
+#controls img {
+    display: block;
+    margin: 10px auto;
+    height: 80px;
+}
+#controls #earth-icon {
+    width: 80px;
+    height: 80px;
+}
+
+#story.sun {
+    font-family: 'Sunshiney';
+    color: #f8ff06;
+}
+#story.moon {
+    font-family: 'Comic Sans';
+    color: #e8bdaa;
+}
+#story.earth {
+    font-family: 'Oswald';
+    color: #27acff;
+}
+
+#sun, #moon {
+    opacity: 0;
+    position: absolute;
+    left: calc(50% - 125px);
+    width: 250px;
+    height: 250px;
+    transition: opacity 300ms, left 100ms;
+}
+
+#earth {
+    opacity: 0;
+    position: absolute;
+    left: calc(50% - 40px);
+    top: 50%;
+    width: 80px;
+    height: 80px;
+}
+
+#earth img, #sun img, #moon img {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.row {
+    width: 100%;
+}
+
+#game-div {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+}

@@ -1,3 +1,12 @@
+#particle {
+    z-index: -10;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+}
+
 * {
     cursor: default;
 }
@@ -23,6 +32,16 @@ body {
 @font-face {
     font-family: 'Anton';
     src: url('./fonts/Anton-Regular.ttf');
+}
+
+@font-face {
+    font-family: 'Comic Sans';
+    src: url('./fonts/COMIC.TTF');
+}
+
+@font-face {
+    font-family: 'Sunshiney';
+    src: url('./fonts/Sunshiney-Regular.ttf');
 }
 
 .starry {
