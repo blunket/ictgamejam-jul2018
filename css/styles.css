@@ -16,7 +16,7 @@ html, body {
     background-color: #070B34;
 }
 body {
-    overflow-y: hidden;
+    overflow: hidden;
 }
 
 @font-face {
