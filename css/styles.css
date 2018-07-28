@@ -1,0 +1,39 @@
+* {
+    cursor: default;
+}
+html, body {
+    margin: 0px;
+    padding: 0px;
+    background-color: #070B34;
+}
+body {
+    overflow-y: hidden;
+}
+
+@font-face {
+    font-family: 'MerryChristmas';
+    src: url('./fonts/MerryChristmasStar.ttf');
+}
+
+@font-face {
+    font-family: 'Oswald';
+    src: url('./fonts/Oswald-Regular.ttf');
+}
+
+@font-face {
+    font-family: 'Anton';
+    src: url('./fonts/Anton-Regular.ttf');
+}
+
+.starry {
+    font-family: 'MerryChristmas', cursive;
+    font-weight: 400;
+}
+.anton {
+    font-family: 'Anton', sans-serif;
+    font-weight: 400;
+}
+.oswald {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 400;
+}
