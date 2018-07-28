@@ -10,11 +10,11 @@ function createWindow () {
 		height: 600,
 		minWidth: 1200,
 		minHeight: 600,
-		fullscreen: false,
-		// fullscreen: true,
+		// fullscreen: false,
+		fullscreen: true,
 	})
 
-	win.toggleDevTools()
+	// win.toggleDevTools()
 
 	win.setMenu(null)
 
