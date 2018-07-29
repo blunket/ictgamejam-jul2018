@@ -70,23 +70,21 @@ $(function() {
             'I am shining bright.^500 I am stellar.^500<br>^100I am ^100.^100.^100. absolutely,^100 blindingly,^100 stunningly,^100 unfathomably,^100 stunningly radiant.',
             'Bask in my magnificence and glory.',
             'WELL, WELL, WELL',
-            'LOOK WHO IT IS', // 5
-            'IF IT ISN\'T THE SUN',
-            'Waxing Gibbous!!',
-            'What in space are you doing here???',
+            'IF IT ISN\'T THE SUN', // 5
+            'Waxing Gibbous!!^500 What in space are you doing here???',
             'THAT\'S RIGHT PUNK',
-            'IT\'S ME, THE WAXING GIBBOUS', // 10
+            'IT\'S ME, THE WAXING GIBBOUS',
             'What do you want???',
             'I\'VE LIVED IN YOUR SHADOW FAR TOO LONG',
-            'BUT I WILL TOLERATE IT NO LONGER',
+            'I WILL HAVE IT NO LONGER',
             'What are you talking about,^200 Gibbous???^100 I don\'t even cast a shadow!',
-            'DON\'T PLAY DUMB WITH ME, SUNNY',  // 15
-            'EVERYONE HAS ALWAYS COMPARED US',
-            'EVERYONE HAS ALWAYS CALLED YOU THE BRIGHT ONE',
+            'DON\'T PLAY DUMB WITH ME, SUNNY',
+            'EVERYONE ALWAYS COMPARES ME TO YOU',
+            'EVERYONE HAS ALWAYS CALLED YOU THE BRIGHTER ONE',
             'EVERYONE HAS LEFT ME IN THE DARK',
-            'DO YOU KNOW WHAT IT\'S LIKE, ONLY COMING OUT AT NIGHT',
-            'guys^200 please', // 20
-            'let\'s all calm down', // 21
+            'DO YOU KNOW WHAT IT\'S LIKE ONLY COMING OUT AT NIGHT',
+            'guys^200 please',
+            'let\'s all calm down',
             'STAY OUT OF THIS, EARTH',
             'I\'M ABOUT TO PUT THIS NERD IN HIS PLACE',
             'oh god help us'
@@ -109,39 +107,39 @@ $(function() {
                 $sun.css("opacity", 0);
                 suntheme.pause();
                 moontheme.play();
-            } else if (pos == 7) {
+            } else if (pos == 6) {
                 $sunimg.attr('src', '../assets/sun.svg');
                 sunsTurn();
                 $moon.css("opacity", 0);
                 $sun.css("opacity", 1);
-            } else if (pos == 9) {
+            } else if (pos == 7) {
                 moonsTurn();
                 $sun.css("left", "calc(50% - 400px)")
                 $moon.css({"opacity": 1, "left": "calc(50% + 100px)"});
-            } else if (pos == 11) {
+            } else if (pos == 9) {
                 sunsTurn();
-            } else if (pos == 12) {
+            } else if (pos == 10) {
                 $moonimg.attr('src', '../assets/moon-miffed.svg');
+                moonsTurn();
+                shakeMoon('up', 5);
+            } else if (pos == 12) {
+                sunsTurn();
+            } else if (pos == 13) {
                 moonsTurn();
                 shakeMoon('up', 5);
             } else if (pos == 14) {
-                sunsTurn();
-            } else if (pos == 15) {
-                moonsTurn();
-                shakeMoon('up', 5);
-            } else if (pos == 16) {
                 $moonimg.attr('src', '../assets/moon-butthurt.svg');
-            } else if (pos == 18) {
+            } else if (pos == 16) {
                 shakeMoon('up', 5);
-            } else if (pos == 20) {
+            } else if (pos == 18) {
                 $moonimg.attr('src', '../assets/moon-miffed.svg');
                 $earth.css("opacity", 1);
                 earthsTurn();
-            } else if (pos == 22) {
+            } else if (pos == 20) {
                 moonsTurn();
                 $moonimg.attr('src', '../assets/moon.svg');
                 shakeMoon('up', 3);
-            } else if (pos == 24) {
+            } else if (pos == 22) {
                 earthsTurn();
                 shakeEarth('right', 4);
             }
@@ -165,7 +163,7 @@ function showControls(typed) {
         $("#story").remove()
         typed.destroy()
         $("#controls").fadeIn()
-        $(window).one('click', startGame)
+        $(window).one('click, keypress', startGame)
     })
 }
 
@@ -174,6 +172,10 @@ var keysDown = {
     'a': false,
     's': false,
     'd': false,
+    'arrowup': false,
+    'arrowleft': false,
+    'arrowdown': false,
+    'arrowright': false,
 };
 document.onkeydown = document.onkeyup = e => {
     e = e || event;
@@ -208,7 +210,10 @@ function startGame() {
         randomMoonMovementLoop()
         randomSunMovementLoop()
 
-        $(window).on('click', function() {
+        $(window).on('click, keydown', e => {
+            if (e.type == 'keydown' && e.key !== 'Enter' && e.key !== ' ') {
+                return;
+            }
             if (Date.now() - lastEmergency > 10000) {
                 earthEmergency();
             } else {
@@ -492,8 +497,10 @@ function gameLoop() {
             }
         }
 
-        if (dist(sunPos.left + 75, sunPos.top + 75, starPos.left + 10, starPos.top + 10) < 75 + starHitBoxOffset) {
-            sunHit();
+        if (stars[i] instanceof StarParticle) { // sun shouldn't get hit by his own particles
+            if (dist(sunPos.left + 75, sunPos.top + 75, starPos.left + 10, starPos.top + 10) < 75 + starHitBoxOffset) {
+                sunHit();
+            }
         }
         if (dist(playerPos.left + 30, playerPos.top + 30, starPos.left + 10, starPos.top + 10) < 25 + starHitBoxOffset) {
             playerHit();
@@ -505,10 +512,10 @@ function gameLoop() {
             stars.splice(i, 1)
         }
     }
-    if (keysDown.a) { playerXVel -= 2 }
-    if (keysDown.d) { playerXVel += 2 }
-    if (keysDown.w) { playerYVel -= 2 }
-    if (keysDown.s) { playerYVel += 2 }
+    if (keysDown.w || keysDown.arrowup) { playerYVel -= 2 }
+    if (keysDown.a || keysDown.arrowleft) { playerXVel -= 2 }
+    if (keysDown.s || keysDown.arrowdown) { playerYVel += 2 }
+    if (keysDown.d || keysDown.arrowright) { playerXVel += 2 }
 
     if (playerXVel < -20) {
         playerXVel = -20;
@@ -526,22 +533,18 @@ function gameLoop() {
         playerHit()
         playerXVel = 0 - playerXVel;
         playerYVel = 0 - playerYVel;
-        do {
-            $player.css({
-                left: playerPos.left + playerXVel,
-                top: playerPos.top + playerYVel,
-            })
-        } while (dist(sunPos.left + 75, sunPos.top + 75, playerPos.left + 30, playerPos.top + 30) < 100)
+        $player.css({
+            left: playerPos.left + playerXVel,
+            top: playerPos.top + playerYVel,
+        })
     } else if (dist(moonPos.left + 75, moonPos.top + 75, playerPos.left + 30, playerPos.top + 30) < 100) {
         playerHit()
         playerXVel = 0 - playerXVel;
         playerYVel = 0 - playerYVel;
-        do {
-            $player.css({
-                left: playerPos.left + playerXVel,
-                top: playerPos.top + playerYVel,
-            })
-        } while (dist(moonPos.left + 75, moonPos.top + 75, playerPos.left + 30, playerPos.top + 30) < 100)
+        $player.css({
+            left: playerPos.left + playerXVel,
+            top: playerPos.top + playerYVel,
+        })
     }
 
     $player.css({

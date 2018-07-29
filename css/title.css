@@ -40,7 +40,6 @@ h1 .small:first-of-type {
 
 #play-btn {
     cursor: pointer;
-    display: block;
     text-transform: uppercase;
     font-family: "Oswald";
     color: #fff;
@@ -50,9 +49,31 @@ h1 .small:first-of-type {
     font-size: 34px;
     background-color: rgba(255, 255, 255, 0.2);
     transition: all 0.15s;
+    text-align: center;
+}
+
+#play-btn span {
+    display: block;
+    cursor: pointer;
+    font-size: 14px;
 }
 
 #play-btn:hover {
     transform: scale(1.05);
     background-color: rgba(255, 255, 255, 0.3);
+}
+
+.hl-battle {
+    font-weight: normal;
+    color: #cc6655;
+}
+
+.hl-moon {
+    font-weight: normal;
+    color: #eeaa88;
+}
+
+.hl-sun {
+    font-weight: normal;
+    color: #f8ff06;
 }

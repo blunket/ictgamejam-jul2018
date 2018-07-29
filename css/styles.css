@@ -56,3 +56,7 @@ body {
     font-family: 'Oswald', sans-serif;
     font-weight: 400;
 }
+
+.row {
+    width: 100% !important;
+}

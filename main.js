@@ -14,7 +14,7 @@ function createWindow () {
 		fullscreen: true,
 	})
 
-	win.toggleDevTools()
+	// win.toggleDevTools()
 
 	win.setMenu(null)
 

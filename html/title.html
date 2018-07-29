@@ -10,15 +10,18 @@
     <div id="left">
         <h1>
             <span class="small oswald">The</span>
-            Big Gigantic Battle
+            <strong class="hl-battle">Big Gigantic Battle</strong>
             <span class="small oswald">between the</span>
-            Not-So-Miniscule Moon
+            <strong class="hl-moon">Not-So-Miniscule Moon</strong>
             <span class="small oswald">and the</span>
-            Stupid Smoldering Sun
+            <strong class="hl-sun">Stupid Smoldering Sun</strong>
         </h1>
     </div>
     <div id="right">
-        <a href="game.html" id="play-btn">Play</a>
+        <button id="play-btn">
+            Play
+            <span>[or press enter/space]</span>
+        </button>
     </div>
 
     <audio src="../music/Berlin Approval.mp3" loop="loop" autoplay="autoplay"></audio>
@@ -26,6 +29,14 @@
     <script src="../js/particles.min.js"></script>
     <script>
         particlesJS.load('particle', '../js/particles.json');
+        document.onkeypress = e => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                window.location = 'game.html'
+            }
+        }
+        document.getElementById('play-btn').onclick = () => {
+            window.location = 'game.html'
+        }
     </script>
 </body>
 </html>
