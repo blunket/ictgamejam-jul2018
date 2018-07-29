@@ -156,7 +156,7 @@ $(function() {
     })
 
     document.addEventListener('keypress', (e) => {
-        if (e.key == 'Enter') {
+        if (e.key == 'Enter' || e.key == ' ') {
             showControls(t)
         }
     })
@@ -172,7 +172,7 @@ function showControls(typed) {
         $("#story").remove()
         typed.destroy()
         $("#controls").fadeIn()
-        $(window).one('click, keypress', startGame)
+        $(window).one('keypress', startGame)
     })
 }
 
@@ -216,12 +216,14 @@ function startGame() {
         $("#healthbar-green").fadeIn()
         gameLoop()
         slowLevelUp()
+        randomSunTauntLoop()
+        randomMoonTauntLoop()
         randomSunActionLoop()
         randomMoonActionLoop()
         randomMoonMovementLoop()
         randomSunMovementLoop()
 
-        $(window).on('click, keydown', e => {
+        $(window).on('keydown', e => {
             if (e.type == 'keydown' && e.key !== 'Enter' && e.key !== ' ') {
                 return;
             }
@@ -596,6 +598,20 @@ function randomSunMovementLoop() {
     }, randInt(2500, 4000))
 }
 
+function randomMoonTauntLoop() {
+    setTimeout(() => {
+        moonTaunt()
+        randomMoonTauntLoop()
+    }, randInt(10000, 25000))
+}
+
+function randomSunTauntLoop() {
+    setTimeout(() => {
+        sunTaunt()
+        randomSunTauntLoop()
+    }, randInt(10000, 25000))
+}
+
 function randomMoonActionLoop() {
     let lvlOffset = 200 * lvl;
     if (lvlOffset > 3500) {
@@ -670,6 +686,57 @@ function randomSunActionLoop() {
 }
 
 var sunHits = 0;
+var moonTaunts = [
+    'TAKE THAT SUNNY BOY',
+    'LIGHT <b>THIS</b> ON FIRE',
+    'NOT SO HOT NOW ARE WE SUNNY',
+    'OH MY STARS, THAT MUST HURT',
+    'HAVE A STAR GRENADE',
+    'WOW GOOD ONE THAT REALLY HURT',
+    'I\'M COOLER THAN YOU',
+    'FLAME ISN\'T EVERYTHING',
+]
+
+var sunTaunts = [
+    'Don\'t bask too long!',
+    'You need a tan!',
+    'You wouldn\'t shine without me!',
+    'Eat sunrays, Gibbous!',
+    'I\'ll burn that smile off your face!',
+    'I\'ll make you a New Moon!',
+    'Twinkle, twinkle, LITTLE STARS!',
+    'Don\'t forget sunscreen!',
+    'Can\'t take the heat?',
+    'Not all of us can be stars, Gibbous...'
+]
+
+function sunTaunt() {
+    let text = getRandomItem(sunTaunts)
+    $("#sun-taunt").css("top", $("#sun-character").position().top).text("").fadeIn();
+    let tt = new Typed('#sun-taunt', {
+        strings: [text],
+        onComplete: (t) => {
+            setTimeout(() => {
+                t.destroy()
+                $("#sun-taunt").fadeOut()
+            }, 2500)
+        }
+    })
+}
+
+function moonTaunt() {
+    let text = getRandomItem(moonTaunts)
+    $("#moon-taunt").css("top", $("#moon-character").position().top).text("").fadeIn();
+    let tt = new Typed('#moon-taunt', {
+        strings: [text],
+        onComplete: (t) => {
+            setTimeout(() => {
+                t.destroy()
+                $("#moon-taunt").fadeOut()
+            }, 2500)
+        }
+    })
+}
 
 function sunHit() {
     if ($('.hit, .laughing').length > 0) {
