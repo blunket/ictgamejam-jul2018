@@ -8,6 +8,9 @@ gametheme.volume = 0.3;
 var starFireSound = new Audio('../music/star.mp3');
 starFireSound.volume = 0.2;
 
+var fireballSound = new Audio('../music/fireball.mp3');
+fireballSound.volume = 0.2;
+
 var laserSound = new Audio('../music/laser.mp3');
 laserSound.volume = 0.2;
 
@@ -208,6 +211,29 @@ function getRandomItem(arr) {
 }
 
 var $gamediv = $("#game-div");
+class FireBallParticle {
+    constructor(x, y, xVel, yVel) {
+        let imgsrc = getRandomItem(['fireball-1.svg', 'fireball-2.svg', 'fireball-3.svg']);
+        this.img = new Image()
+        this.img.src = '../assets/' + imgsrc;
+        this.xVel = xVel ? xVel : 10;
+        this.yVel = yVel ? yVel : 0;
+        let $img = $(this.img)
+        $img.addClass('fireball').css({
+            'left': x,
+            'top': y,
+        })
+        $gamediv.append($img)
+    }
+    step() {
+        let $img = $(this.img)
+        $img.css({
+            'left': $img.position().left + this.xVel,
+            'top': $img.position().top - this.yVel
+        })
+    }
+}
+
 class StarParticle {
     constructor(x, y, xVel, yVel) {
         let imgsrc = getRandomItem(['stars-1.svg', 'stars-2.svg', 'stars-3.svg']);
@@ -330,6 +356,41 @@ function starConeSpray() {
     }
 }
 
+function fireballSpray() {
+    let amount = randInt(10 + lvl, 25 + lvl)
+    let $sun = $("#sun-character")
+    for (let i = 0; i < amount; i++) {
+        setTimeout(() => {
+            fireballSound.currentTime = 0
+            fireballSound.volume = 0.8
+            fireballSound.play()
+            let l = $sun.position().left - 5;
+            let h = randInt(50, $window.height() - 50);
+            let yVel = randInt(-10, 10)
+            let prt = new FireBallParticle(l, h, 10, yVel);
+            stars.push(prt)
+        }, 200 * i)
+    }
+}
+
+function bigFireballSpray() {
+    let amount = randInt(lvl, 10 + lvl)
+    let $sun = $("#sun-character")
+    for (let i = 0; i < amount; i++) {
+        setTimeout(() => {
+            fireballSound.currentTime = 0
+            fireballSound.volume = 1
+            fireballSound.play()
+            let l = $sun.position().left - 5;
+            let h = randInt(50, $window.height() - 50);
+            let yVel = randInt(-10, 10)
+            let prt = new FireBallParticle(l, h, 6, yVel);
+            prt.img.classList.add('big');
+            stars.push(prt)
+        }, 600 * i)
+    }
+}
+
 function starLineSpray() {
     let lines = randInt(4, 4 + lvl)
     let $moon = $("#moon-character")
@@ -395,7 +456,7 @@ function gameLoop() {
         }
         let starHitBoxOffset = 0;
         if ($img.hasClass('big')) {
-            starHitBoxOffset = 20
+            starHitBoxOffset = 25
         } else if ($img.hasClass('grenade')) {
             starHitBoxOffset = 60
         }
@@ -434,10 +495,22 @@ function gameLoop() {
         playerHit()
         playerXVel = 0 - playerXVel;
         playerYVel = 0 - playerYVel;
+        do {
+            $player.css({
+                left: playerPos.left + playerXVel,
+                top: playerPos.top + playerYVel,
+            })
+        } while (dist(sunPos.left + 75, sunPos.top + 75, playerPos.left + 30, playerPos.top + 30) < 100)
     } else if (dist(moonPos.left + 75, moonPos.top + 75, playerPos.left + 30, playerPos.top + 30) < 100) {
         playerHit()
         playerXVel = 0 - playerXVel;
         playerYVel = 0 - playerYVel;
+        do {
+            $player.css({
+                left: playerPos.left + playerXVel,
+                top: playerPos.top + playerYVel,
+            })
+        } while (dist(moonPos.left + 75, moonPos.top + 75, playerPos.left + 30, playerPos.top + 30) < 100)
     }
 
     $player.css({
@@ -515,7 +588,7 @@ function singleLaser() {
     let y = sunPos.top + 75;
     let yVel = 0;
     if (lvl > 3 && Math.random() < 0.4) {
-        yVel = randInt(0 - 2 * lvl, 2 * lvl)
+        yVel = randInt(-10, 10)
     }
     let particle = new LaserParticle(x, y, 6 + lvl, yVel, laserLen)
     lasers.push(particle)
@@ -528,13 +601,23 @@ function randomSunActionLoop() {
     }
     setTimeout(() => {
         let whichAction = Math.random();
-        // if (whichAction < 0.333) {
+        if (lvl < 2) {
             singleLaser()
-        // } else if (whichAction < 0.666) {
-            // starLineSpray()
-        // } else {
-            // starGrenade()
-        // }
+        } else if (lvl < 4) {
+            if (whichAction < 0.4) {
+                singleLaser()
+            } else {
+                fireballSpray()
+            }
+        } else {
+            if (whichAction < 0.333) {
+                singleLaser()
+            } else if (whichAction < 0.667) {
+                fireballSpray()
+            } else {
+                bigFireballSpray()
+            }
+        }
         randomSunActionLoop();
     }, randInt(5400 - lvlOffset, 10000 - lvlOffset))
 }
