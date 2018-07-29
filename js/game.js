@@ -22,6 +22,7 @@ var stars = [];
 var lasers = [];
 var $window = $(window);
 var isEarthEmergency = false;
+var lastEmergency = 0;
 var earthEmergencyX = 0;
 var earthEmergencyY = 0;
 
@@ -208,7 +209,11 @@ function startGame() {
         randomSunMovementLoop()
 
         $(window).on('click', function() {
-            earthEmergency();
+            if (Date.now() - lastEmergency > 10000) {
+                earthEmergency();
+            } else {
+                $("#player img").shake({ direction: 'left', distance: 10, times: 2 })
+            }
         })
     })
 }
@@ -577,8 +582,8 @@ function randomSunMovementLoop() {
 
 function randomMoonActionLoop() {
     let lvlOffset = 200 * lvl;
-    if (lvlOffset > 4000) {
-        lvlOffset = 4000;
+    if (lvlOffset > 3500) {
+        lvlOffset = 3500;
     }
     setTimeout(() => {
         let whichAction = Math.random();
@@ -591,16 +596,16 @@ function randomMoonActionLoop() {
                 starLineSpray()
             }
         } else {
-            if (whichAction < 0.333) {
+            if (whichAction < 0.25) {
                 starConeSpray()
-            } else if (whichAction < 0.666) {
+            } else if (whichAction < 0.5) {
                 starLineSpray()
             } else {
                 starGrenade()
             }
         }
         randomMoonActionLoop()
-    }, randInt(6400 - lvlOffset, 10000 - lvlOffset))
+    }, randInt(5400 - lvlOffset, 9000 - lvlOffset))
 }
 
 function singleLaser() {
@@ -622,8 +627,8 @@ function singleLaser() {
 
 function randomSunActionLoop() {
     let lvlOffset = 200 * lvl;
-    if (lvlOffset > 4000) {
-        lvlOffset = 4000;
+    if (lvlOffset > 3500) {
+        lvlOffset = 3500;
     }
     setTimeout(() => {
         let whichAction = Math.random();
@@ -636,16 +641,16 @@ function randomSunActionLoop() {
                 fireballSpray()
             }
         } else {
-            if (whichAction < 0.333) {
+            if (whichAction < 0.3) {
                 singleLaser()
-            } else if (whichAction < 0.667) {
+            } else if (whichAction < 0.6) {
                 fireballSpray()
             } else {
                 bigFireballSpray()
             }
         }
         randomSunActionLoop();
-    }, randInt(5400 - lvlOffset, 10000 - lvlOffset))
+    }, randInt(4400 - lvlOffset, 9000 - lvlOffset))
 }
 
 var sunHits = 0;
@@ -717,6 +722,7 @@ function earthEmergency() {
     $ee.fadeIn(300);
     $ee.css('transform', 'scale(10)');
     isEarthEmergency = true;
+    lastEmergency = Date.now();
     setTimeout(() => {
         $ee.fadeOut(500, () => {
             isEarthEmergency = false;
