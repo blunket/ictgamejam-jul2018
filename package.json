@@ -3,13 +3,16 @@
     "electron": "^2.0.5",
     "typed.js": "^2.0.8"
   },
-  "name": "menacing-moon",
+  "name": "big-gigantic-battle",
   "version": "1.0.0",
-  "description": "The Extraordinary Misadventures of the Mean Menacing Moon and the Gleaming Golden Sun",
+  "description": "The Big Gigantic Battle between the Not-So-Miniscule Moon and the Stupid Smoldering Sun",
   "main": "index.html",
   "author": "Andrew Siegman <blerrnk@gmail.com>",
   "license": "MIT",
   "scripts": {
     "start": "./node_modules/electron/dist/electron main.js"
+  },
+  "devDependencies": {
+    "electron-packager": "^12.1.0"
   }
 }
