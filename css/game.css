@@ -182,3 +182,10 @@
     text-align: center;
     transition: transform 0.5s;
 }
+
+.laser {
+    background-color: #f8ff06;
+    display: block;
+    position: absolute;
+    height: 4px;
+}
