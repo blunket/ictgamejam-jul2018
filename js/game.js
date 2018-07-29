@@ -13,7 +13,9 @@ var playerXVel = 0;
 var playerYVel = 0;
 
 var stars = [];
-var $document = $(document);
+var $window = $(window);
+
+var lvl = 0;
 
 $(function() {
 
@@ -189,6 +191,7 @@ function startGame() {
 
         $("#game").fadeIn()
         gameLoop()
+        slowLevelUp()
         randomMoonActionLoop()
         randomMoonMovementLoop()
         randomSunMovementLoop()
@@ -201,8 +204,8 @@ function getRandomItem(arr) {
 
 var $gamediv = $("#game-div");
 class StarParticle {
-    constructor(x, y, xVel, yVel) {
-        let imgsrc = getRandomItem(['stars-1.svg', 'stars-2.svg', 'stars-3.svg'])
+    constructor(x, y, xVel, yVel, zigzagging) {
+        let imgsrc = getRandomItem(['stars-1.svg', 'stars-2.svg', 'stars-3.svg']);
         this.img = new Image()
         this.img.src = '../assets/' + imgsrc;
         this.xVel = xVel ? xVel : 10;
@@ -224,34 +227,82 @@ class StarParticle {
     }
 }
 
+function starGrenade() {
+    let $moon = $("#moon-character")
+    starFireSound.currentTime = 0
+    starFireSound.volume = 0.75
+    starFireSound.play()
+    let x = $moon.position().left - 5;
+    let y = $moon.position().top + 75;
+    let particle = new StarParticle(x, y, 5 + lvl, 0)
+    let face = getRandomItem(['stars-face-1.svg', 'stars-face-2.svg', 'stars-face-3.svg']);
+    particle.img.src = '../assets/' + face;
+    particle.img.classList.add('grenade')
+    stars.push(particle)
+}
+
+// returns an array of evenly-spaced angles (in radians) for any number of bullets
+function getRadiansArray(bullets) {
+    let nums = [];
+    for (i = 0; i < bullets; i++) {
+        let degs = i * (360 / bullets);
+        nums.push((degs * Math.PI) / 180);
+    }
+    return nums;
+}
+
+function starExplosion(x, y) {
+    let explosions = randInt(1, 6 + lvl);
+    let speed = 15 + lvl;
+    for (let a = 0; a < explosions; a++) {
+        setTimeout(() => {
+            let numstars = randInt(3, 10 + lvl);
+            let angles = getRadiansArray(numstars);
+            starFireSound.currentTime = 0;
+            starFireSound.volume = 0.6;
+            starFireSound.play();
+            for (let i = 0; i < numstars; i++) {
+                let xVel = speed * Math.cos(angles[i]);
+                let yVel = speed * Math.sin(angles[i]);
+                let prt = new StarParticle(x, y, xVel, yVel);
+                stars.push(prt)
+            }
+        }, 500 * a)
+    }
+}
+
 function starConeSpray() {
-    let amount = randInt(15, 30)
+    let amount = randInt(15, 30 + lvl)
     let $moon = $("#moon-character")
     for (let i = 0; i < amount; i++) {
         setTimeout(() => {
             starFireSound.currentTime = 0
             starFireSound.volume = 0.2
             starFireSound.play()
-            let l = $moon.position().left;
-            let h = $moon.position().top;
+            let l = $moon.position().left - 5;
+            let h = $moon.position().top + 75;
             let yVel = randInt(-10, 10)
-            stars.push(new StarParticle(l, h, 15, yVel))
+            let prt = new StarParticle(l, h, 15, yVel);
+            if (Math.random() < .3) {
+                prt.img.classList.add('big');
+            }
+            stars.push(prt)
         }, 200 * i)
     }
 }
 
 function starLineSpray() {
-    let lines = randInt(4, 8)
+    let lines = randInt(4, 8 + lvl)
     let $moon = $("#moon-character")
     for (let l = 0; l < lines; l++) {
-        let lineAmt = randInt(3, 8)
+        let lineAmt = randInt(3, 8 + lvl)
         setTimeout(() => {
             starFireSound.currentTime = 0
             starFireSound.volume = 0.35
             starFireSound.play()
             for (let i = 0; i < lineAmt; i++) {
                 let l = $moon.position().left;
-                let h = Math.floor(Math.random() * $document.height())
+                let h = Math.floor(Math.random() * $window.height())
                 let yVel = randInt(-10, 10)
                 stars.push(new StarParticle(l, h, 15, 0))
             }
@@ -265,23 +316,48 @@ function dist(x1, y1, x2, y2) {
 
 function gameLoop() {
     let sunPos = $("#sun-character").position()
+    let moonPos = $("#moon-character").position()
     let playerPos = $player.position()
+    if (playerPos.left < 5) {
+        $player.css('left', $window.width() - 10)
+    } else if (playerPos.left > $window.width() - 5) {
+        $player.css('left', 10)
+    }
+    if (playerPos.top < 5) {
+        $player.css('top', $window.height() - 10)
+    } else if (playerPos.top > $window.height() - 5) {
+        $player.css('top', 10)
+    }
+    playerPos = $player.position()
+
     for (let i = 0; i < stars.length; i++) {
         stars[i].step()
         let $img = $(stars[i].img)
         let starPos = $img.position()
-        if (starPos.left < -25) {
+        if (starPos.left < -25 || starPos.left > $window.width() || starPos.top < 5 || starPos.top > $window.height() - 5) {
             $img.remove()
             stars.splice(i, 1)
         }
-        if (dist(sunPos.left + 75, sunPos.top + 75, starPos.left + 10, starPos.top + 10) < 75) {
+        let starHitBoxOffset = 0;
+        if ($img.hasClass('big')) {
+            starHitBoxOffset = 20
+        } else if ($img.hasClass('grenade')) {
+            starHitBoxOffset = 60
+        }
+
+        if (dist(sunPos.left + 75, sunPos.top + 75, starPos.left + 10, starPos.top + 10) < 75 + starHitBoxOffset) {
             sunHit();
         }
-        if (dist(playerPos.left + 30, playerPos.top + 30, starPos.left + 10, starPos.top + 10) < 25) {
+        if (dist(playerPos.left + 30, playerPos.top + 30, starPos.left + 10, starPos.top + 10) < 25 + starHitBoxOffset) {
             playerHit();
         }
-    }
 
+        if (starPos.left < $window.width() / 2 && Math.random() < 0.3 && $img.hasClass('grenade')) {
+            starExplosion(starPos.left, starPos.top)
+            $img.remove()
+            stars.splice(i, 1)
+        }
+    }
     if (keysDown.a) { playerXVel -= 2 }
     if (keysDown.d) { playerXVel += 2 }
     if (keysDown.w) { playerYVel -= 2 }
@@ -299,12 +375,23 @@ function gameLoop() {
         playerYVel = 20;
     }
 
+    if (dist(sunPos.left + 75, sunPos.top + 75, playerPos.left + 30, playerPos.top + 30) < 100) {
+        playerHit()
+        playerXVel = 0 - playerXVel;
+        playerYVel = 0 - playerYVel;
+    } else if (dist(moonPos.left + 75, moonPos.top + 75, playerPos.left + 30, playerPos.top + 30) < 100) {
+        playerHit()
+        playerXVel = 0 - playerXVel;
+        playerYVel = 0 - playerYVel;
+    }
+
     $player.css({
         left: playerPos.left + playerXVel,
         top: playerPos.top + playerYVel,
     })
-    setTimeout(gameLoop, 50);
+    setTimeout(gameLoop, 40);
 }
+
 
 function randInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min
@@ -313,18 +400,21 @@ function randInt(min, max) {
 function randomMoonMovementLoop() {
     setTimeout(() => {
         if (Math.random() < 0.75) {
+            let topPos = randInt(100, $window.height() - 100);
             $("#moon-character").animate({
-                'top': randInt(100, $document.height() - 300)
+                'top': topPos
             }, randInt(1500, 2500))
         }
         randomMoonMovementLoop()
     }, randInt(2500, 4000))
 }
+
 function randomSunMovementLoop() {
     setTimeout(() => {
         if (Math.random() < 0.5) {
+            let topPos = randInt(100, $window.height() - 100);
             $("#sun-character").animate({
-                'top': randInt(100, $document.height() - 300)
+                'top': topPos
             }, randInt(1500, 2500))
         }
         randomSunMovementLoop()
@@ -332,12 +422,20 @@ function randomSunMovementLoop() {
 }
 
 function randomMoonActionLoop() {
-    if (Math.random() < 0.5) {
+    let whichAction = Math.random();
+    if (whichAction < 0.333) {
         starConeSpray()
-    } else {
+    } else if (whichAction < 0.666) {
         starLineSpray()
+    } else {
+        starGrenade()
     }
-    setTimeout(randomMoonActionLoop, randInt(5000, 10000))
+
+    let lvlOffset = 200 * lvl;
+    if (lvlOffset > 3000) {
+        lvlOffset = 3000;
+    }
+    setTimeout(randomMoonActionLoop, randInt(4400 - lvlOffset, 10000 - lvlOffset))
 }
 
 var sunHits = 0;
@@ -371,12 +469,22 @@ function playerHit() {
 
     $player.addClass('playerhit')
     /*
-    if (playerHits % 5 == 0) {
-        $sun.addClass('hit')
-        $moon.attr('src', '../assets/moon.svg').addClass('laughing')
+    if (playerHits >= 5) {
     }
     */
     setTimeout(() => {
         $player.removeClass('playerhit')
     }, 3000)
+}
+
+function slowLevelUp() {
+    setTimeout(() => {
+        lvl++;
+        $("#levelUpText").fadeIn(300);
+        $("#levelUpText").css('transform', 'scale(1.3)');
+        setTimeout(function() {
+            $("#levelUpText").fadeOut();
+        }, 800)
+        slowLevelUp()
+    }, 15000)
 }

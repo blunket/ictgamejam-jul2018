@@ -56,7 +56,7 @@
       "enable": true,
       "speed": 7,
       "direction": "left",
-      "random": false,
+      "random": true,
       "straight": true,
       "out_mode": "out",
       "bounce": false,
