@@ -200,3 +200,24 @@
     border-radius: 50%;
     transition: transform 0.5s;
 }
+
+#healthbar {
+    background-color: #c66;
+    width: 100%;
+    position: absolute;
+    top: 15px;
+    left: 0px;
+    height: 12px;
+    z-index: 10000;
+    display: none;
+}
+#healthbar-green {
+    background-color: #6c6;
+    width: 100%;
+    position: absolute;
+    top: 15px;
+    left: 0px;
+    height: 12px;
+    z-index: 100000;
+    display: none;
+}

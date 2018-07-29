@@ -209,6 +209,8 @@ function startGame() {
         })
 
         $("#game").fadeIn()
+        $("#healthbar").fadeIn()
+        $("#healthbar-green").fadeIn()
         gameLoop()
         slowLevelUp()
         randomSunActionLoop()
@@ -540,20 +542,8 @@ function gameLoop() {
 
     if (dist(sunPos.left + 75, sunPos.top + 75, playerPos.left + 30, playerPos.top + 30) < 100) {
         playerHit()
-        playerXVel = 0 - playerXVel;
-        playerYVel = 0 - playerYVel;
-        $player.css({
-            left: playerPos.left + playerXVel,
-            top: playerPos.top + playerYVel,
-        })
     } else if (dist(moonPos.left + 75, moonPos.top + 75, playerPos.left + 30, playerPos.top + 30) < 100) {
         playerHit()
-        playerXVel = 0 - playerXVel;
-        playerYVel = 0 - playerYVel;
-        $player.css({
-            left: playerPos.left + playerXVel,
-            top: playerPos.top + playerYVel,
-        })
     }
 
     $player.css({
@@ -698,10 +688,12 @@ function playerHit() {
     playerHits++;
 
     $player.addClass('playerhit')
-    /*
-    if (playerHits >= 5) {
+    $("#healthbar-green").css('width', 100 - ((playerHits / 10) * 100) + "%")
+/*
+    if (playerHits >= 10) {
+        triggerGameOver()
     }
-    */
+*/
     setTimeout(() => {
         $player.removeClass('playerhit')
     }, 3000)
