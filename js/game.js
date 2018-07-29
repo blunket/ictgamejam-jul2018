@@ -31,6 +31,9 @@ var isEarthEmergency = false;
 var lastEmergency = 0;
 var earthEmergencyX = 0;
 var earthEmergencyY = 0;
+var lastHitter = 'sun'; // affects the game over animation
+
+var gameIsOver = false;
 
 var lvl = 0;
 
@@ -220,6 +223,9 @@ function startGame() {
 
         $(window).on('click, keydown', e => {
             if (e.type == 'keydown' && e.key !== 'Enter' && e.key !== ' ') {
+                return;
+            }
+            if (gameIsOver) {
                 return;
             }
             if (Date.now() - lastEmergency > 10000) {
@@ -445,16 +451,18 @@ function dist(x1, y1, x2, y2) {
 function gameLoop() {
     let sunPos = $("#sun-character").position()
     let moonPos = $("#moon-character").position()
-    let playerPos = $player.position()
-    if (playerPos.left < 5) {
-        $player.css('left', $window.width() - 10)
-    } else if (playerPos.left > $window.width() - 5) {
-        $player.css('left', 10)
-    }
-    if (playerPos.top < 5) {
-        $player.css('top', $window.height() - 10)
-    } else if (playerPos.top > $window.height() - 5) {
-        $player.css('top', 10)
+    if (!gameIsOver) {
+        let playerPos = $player.position()
+        if (playerPos.left < 5) {
+            $player.css('left', $window.width() - 10)
+        } else if (playerPos.left > $window.width() - 5) {
+            $player.css('left', 10)
+        }
+        if (playerPos.top < 5) {
+            $player.css('top', $window.height() - 10)
+        } else if (playerPos.top > $window.height() - 5) {
+            $player.css('top', 10)
+        }
     }
     playerPos = $player.position()
 
@@ -473,6 +481,7 @@ function gameLoop() {
             }
         }
         if (playerPos.top + 30 > (laserPos.top - 30) && playerPos.top + 30 < (laserPos.top + 30) && playerPos.left + 30 > (laserPos.left - 30) && playerPos.left + 30 < laserPos.left + $laserdiv.width()) {
+            lastHitter = 'sun';
             playerHit()
             $laserdiv.remove()
             lasers.splice(i, 1)
@@ -514,6 +523,7 @@ function gameLoop() {
             }
         }
         if (dist(playerPos.left + 30, playerPos.top + 30, starPos.left + 10, starPos.top + 10) < 25 + starHitBoxOffset) {
+            lastHitter = 'moon';
             playerHit();
         }
 
@@ -523,33 +533,37 @@ function gameLoop() {
             stars.splice(i, 1)
         }
     }
-    if (keysDown.w || keysDown.arrowup) { playerYVel -= 2 }
-    if (keysDown.a || keysDown.arrowleft) { playerXVel -= 2 }
-    if (keysDown.s || keysDown.arrowdown) { playerYVel += 2 }
-    if (keysDown.d || keysDown.arrowright) { playerXVel += 2 }
+    if (!gameIsOver) {
+        if (keysDown.w || keysDown.arrowup) { playerYVel -= 2 }
+        if (keysDown.a || keysDown.arrowleft) { playerXVel -= 2 }
+        if (keysDown.s || keysDown.arrowdown) { playerYVel += 2 }
+        if (keysDown.d || keysDown.arrowright) { playerXVel += 2 }
 
-    if (playerXVel < -20) {
-        playerXVel = -20;
-    } else if (playerXVel > 20) {
-        playerXVel = 20;
+        if (playerXVel < -20) {
+            playerXVel = -20;
+        } else if (playerXVel > 20) {
+            playerXVel = 20;
+        }
+
+        if (playerYVel < -20) {
+            playerYVel = -20;
+        } else if (playerYVel > 20) {
+            playerYVel = 20;
+        }
+
+        if (dist(sunPos.left + 75, sunPos.top + 75, playerPos.left + 30, playerPos.top + 30) < 100) {
+            lastHitter = 'sun';
+            playerHit()
+        } else if (dist(moonPos.left + 75, moonPos.top + 75, playerPos.left + 30, playerPos.top + 30) < 100) {
+            lastHitter = 'moon';
+            playerHit()
+        }
+
+        $player.css({
+            left: playerPos.left + playerXVel,
+            top: playerPos.top + playerYVel,
+        })
     }
-
-    if (playerYVel < -20) {
-        playerYVel = -20;
-    } else if (playerYVel > 20) {
-        playerYVel = 20;
-    }
-
-    if (dist(sunPos.left + 75, sunPos.top + 75, playerPos.left + 30, playerPos.top + 30) < 100) {
-        playerHit()
-    } else if (dist(moonPos.left + 75, moonPos.top + 75, playerPos.left + 30, playerPos.top + 30) < 100) {
-        playerHit()
-    }
-
-    $player.css({
-        left: playerPos.left + playerXVel,
-        top: playerPos.top + playerYVel,
-    })
     setTimeout(gameLoop, 40);
 }
 
@@ -682,6 +696,9 @@ function playerHit() {
     if ($('.playerhit').length > 0) {
         return;
     }
+    if (gameIsOver) {
+        return;
+    }
     hitSound.pause();
     hitSound.currentTime = 0;
     hitSound.play();
@@ -689,28 +706,81 @@ function playerHit() {
 
     $player.addClass('playerhit')
     $("#healthbar-green").css('width', 100 - ((playerHits / 10) * 100) + "%")
-/*
+
     if (playerHits >= 10) {
         triggerGameOver()
     }
-*/
+
     setTimeout(() => {
         $player.removeClass('playerhit')
     }, 3000)
 }
 
+function triggerGameOver() {
+    $player.animate({
+        left: $window.width() / 2,
+        top: $window.height() / 2,
+    })
+
+    if (lastHitter == 'sun') {
+        damnToHell()
+    } else {
+        sendToTheMoon()
+    }
+
+    gameIsOver = true;
+}
+
+function damnToHell() {
+    let amount = randInt(200, 300)
+    let $sun = $("#sun-character")
+    for (let i = 0; i < amount; i++) {
+        setTimeout(() => {
+            fireballSound.currentTime = 0
+            fireballSound.volume = 0.8
+            fireballSound.play()
+            let l = $sun.position().left - 5;
+            let h = randInt(50, $window.height() - 50);
+            let yVel = randInt(-10, 10)
+            let prt = new FireBallParticle(l, h, 10, yVel);
+            prt.img.classList.add('massive');
+            stars.push(prt)
+        }, 100 * i)
+    }
+}
+
+function sendToTheMoon() {
+    let amount = randInt(200, 300)
+    let $moon = $("#moon-character")
+    for (let i = 0; i < amount; i++) {
+        setTimeout(() => {
+            starFireSound.currentTime = 0
+            starFireSound.volume = 0.8
+            starFireSound.play()
+            let l = $moon.position().left - 5;
+            let h = $moon.position().top + 75;
+            let yVel = randInt(-10, 10)
+            let prt = new StarParticle(l, h, 10, yVel);
+            prt.img.classList.add('massive');
+            stars.push(prt)
+        }, 100 * i)
+    }
+}
+
 function slowLevelUp() {
     setTimeout(() => {
-        lvl++;
-        let $levelUpText = $("#levelUpText")
-        $levelUpText.fadeIn(300);
-        $levelUpText.css('transform', 'scale(1.3)');
-        setTimeout(() => {
-            $levelUpText.fadeOut(() => {
-                $levelUpText.css('transform', 'scale(1.0)')
-            });
-        }, 800)
-        slowLevelUp()
+        if (!gameIsOver) {
+            lvl++;
+            let $levelUpText = $("#levelUpText")
+            $levelUpText.fadeIn(300);
+            $levelUpText.css('transform', 'scale(1.3)');
+            setTimeout(() => {
+                $levelUpText.fadeOut(() => {
+                    $levelUpText.css('transform', 'scale(1.0)')
+                });
+            }, 800)
+            slowLevelUp()
+        }
     }, 10000)
 }
 
