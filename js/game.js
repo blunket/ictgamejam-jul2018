@@ -21,6 +21,9 @@ var playerYVel = 0;
 var stars = [];
 var lasers = [];
 var $window = $(window);
+var isEarthEmergency = false;
+var earthEmergencyX = 0;
+var earthEmergencyY = 0;
 
 var lvl = 0;
 
@@ -203,6 +206,10 @@ function startGame() {
         randomMoonActionLoop()
         randomMoonMovementLoop()
         randomSunMovementLoop()
+
+        $(window).on('click', function() {
+            earthEmergency();
+        })
     })
 }
 
@@ -435,6 +442,15 @@ function gameLoop() {
         laser.step();
         let $laserdiv = $(laser.laserdiv);
         let laserPos = $laserdiv.position();
+        if (isEarthEmergency) {
+            let laserX = laserPos.left + $laserdiv.width() / 2;
+            if (dist(laserX, laserPos.top, earthEmergencyX, earthEmergencyY) < 300) {
+                // 300 comes from 30 * 10 (30 = emergency's initial radius, *10 because it's scaled)
+                $laserdiv.remove()
+                lasers.splice(i, 1)
+                continue;
+            }
+        }
         if (playerPos.top + 30 > (laserPos.top - 30) && playerPos.top + 30 < (laserPos.top + 30) && playerPos.left + 30 > (laserPos.left - 30) && playerPos.left + 30 < laserPos.left + $laserdiv.width()) {
             playerHit()
             $laserdiv.remove()
@@ -453,12 +469,22 @@ function gameLoop() {
         if (starPos.left < -25 || starPos.left > $window.width() || starPos.top < 5 || starPos.top > $window.height() - 5) {
             $img.remove()
             stars.splice(i, 1)
+            continue;
         }
         let starHitBoxOffset = 0;
         if ($img.hasClass('big')) {
             starHitBoxOffset = 25
         } else if ($img.hasClass('grenade')) {
             starHitBoxOffset = 60
+        }
+
+        if (isEarthEmergency) {
+            if (dist(starPos.left + 10 + starHitBoxOffset, starPos.top + 10 + starHitBoxOffset, earthEmergencyX, earthEmergencyY) < 300) {
+                // 300 comes from 30 * 10 (30 = emergency's initial radius, *10 because it's scaled)
+                $img.remove()
+                stars.splice(i, 1)
+                continue;
+            }
         }
 
         if (dist(sunPos.left + 75, sunPos.top + 75, starPos.left + 10, starPos.top + 10) < 75 + starHitBoxOffset) {
@@ -673,5 +699,27 @@ function slowLevelUp() {
             });
         }, 800)
         slowLevelUp()
-    }, 15000)
+    }, 10000)
+}
+
+function earthEmergency() {
+    $ee = $("#earthEmergency");
+    let playerPos = $player.position()
+    earthEmergencyX = playerPos.left + 30;
+    earthEmergencyY = playerPos.top + 30;
+    $ee.css({
+        'transform': 'scale(1.0)',
+        'width': '60px',
+        'height': '60px',
+        'left': earthEmergencyX,
+        'top': earthEmergencyY,
+    });
+    $ee.fadeIn(300);
+    $ee.css('transform', 'scale(10)');
+    isEarthEmergency = true;
+    setTimeout(() => {
+        $ee.fadeOut(500, () => {
+            isEarthEmergency = false;
+        })
+    }, 1000)
 }
