@@ -6,7 +6,7 @@
   "name": "big-gigantic-battle",
   "version": "1.0.0",
   "description": "The Big Gigantic Battle between the Not-So-Miniscule Moon and the Stupid Smoldering Sun",
-  "main": "index.html",
+  "main": "main.js",
   "author": "Andrew Siegman <blerrnk@gmail.com>",
   "license": "MIT",
   "scripts": {
