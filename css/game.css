@@ -260,3 +260,57 @@
     right: 200px;
     font-size: 20px;
 }
+
+#gameover {
+    display: none;
+    z-index: 999990;
+    position: absolute;
+    width: 70vw;
+    height: 60vh;
+    top: 20vh;
+    left: 15vw;
+    background-color: rgba(255, 255, 255, 0.8);
+    color: #222;
+    font-family: 'Oswald';
+}
+
+#gameover h2 {
+    font-size: 40px;
+    text-align: center;
+    margin: 10px;
+}
+
+#gameover p {
+    font-size: 24px;
+    text-align: center;
+    margin: 20px 0px;
+}
+
+#msg-from-killer {
+    padding: 5px;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+#msg-from-killer.sun {
+    font-family: 'Sunshiney';
+    color: #f8ff06;
+    font-size: 28px;
+}
+
+#msg-from-killer.moon {
+    font-family: 'Comic Sans';
+    color: #e8bdaa;
+}
+
+#whokilledme {
+    width: 100px;
+    height: 100px;
+    margin: 10px auto;
+    display: block;
+}
+#surviveTime, #howEarthDied {
+    font-weight: bold;
+    padding: 3px;
+    color: rgb(39, 172, 255);
+    filter: brightness(60%);
+    font-size: 30px;
+}

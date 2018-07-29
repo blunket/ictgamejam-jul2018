@@ -33,6 +33,8 @@ var earthEmergencyX = 0;
 var earthEmergencyY = 0;
 var lastHitter = 'sun'; // affects the game over animation
 
+var started = 0;
+
 var gameIsOver = false;
 
 var lvl = 0;
@@ -214,6 +216,7 @@ function startGame() {
         $("#game").fadeIn()
         $("#healthbar").fadeIn()
         $("#healthbar-green").fadeIn()
+        started = Date.now()
         gameLoop()
         slowLevelUp()
         randomSunTauntLoop()
@@ -525,7 +528,11 @@ function gameLoop() {
             }
         }
         if (dist(playerPos.left + 30, playerPos.top + 30, starPos.left + 10, starPos.top + 10) < 25 + starHitBoxOffset) {
-            lastHitter = 'moon';
+            if (stars[i] instanceof StarParticle) {
+                lastHitter = 'moon';
+            } else {
+                lastHitter = 'sun';
+            }
             playerHit();
         }
 
@@ -774,7 +781,7 @@ function playerHit() {
     $player.addClass('playerhit')
     $("#healthbar-green").css('width', 100 - ((playerHits / 10) * 100) + "%")
 
-    if (playerHits >= 10) {
+    if (!gameIsOver && playerHits >= 10) {
         triggerGameOver()
     }
 
@@ -783,17 +790,74 @@ function playerHit() {
     }, 3000)
 }
 
+var moonKillMessages = [
+    'I TOLD YOU TO STAY OUT OF IT',
+    'YOU MADE ME MISS',
+    'DON\'T GET IN MY WAY NEXT TIME',
+    'I\'LL STILL GET MY REVENGE ON THE SUN',
+    'COME ON EARTH THAT WAS JUST LAME',
+];
+
+var sunKillMessages = [
+    'I\'m sorry you had to see that...',
+    'What are you doing, earth??',
+    'This was supposed to be between me and the moon!',
+    'You should have worn sunscreen!',
+    'NOOO! Now you can\'t bask in my glory!',
+];
+
+var howEarthDied = [
+    'exploded',
+    'shattered into a million pieces',
+    'was destroyed',
+    'ended',
+    'suffered mass extinction',
+    'blew up',
+];
+
+var afterAWhat = [
+    'barrage',
+    'swarm',
+    'bombardment',
+    'storm',
+    'volley',
+];
+
 function triggerGameOver() {
     $player.animate({
         left: $window.width() / 2,
         top: $window.height() / 2,
     })
 
-    if (lastHitter == 'sun') {
+    let killer = lastHitter; // in case it gets overwritten somehow
+
+    if (killer == 'sun') {
         damnToHell()
     } else {
         sendToTheMoon()
     }
+
+    let playTime = (Date.now() - started) / 1000;
+    setTimeout(() => {
+        $("#surviveTime").text(playTime + " seconds")
+        $("#howEarthDied").text(getRandomItem(howEarthDied))
+        $("#afterAWhat").text(getRandomItem(afterAWhat))
+        if (killer == 'sun') {
+            $("#whokilledme").attr('src', '../assets/sun.svg');
+            $("#what-killed-me").text("sunrays and fireballs")
+            $("#msg-from-killer").addClass("sun").text(getRandomItem(sunKillMessages))
+        } else {
+            $("#whokilledme").attr('src', '../assets/moon-butthurt.svg');
+            $("#what-killed-me").text("stars and meteorites")
+            $("#msg-from-killer").addClass("moon").text(getRandomItem(moonKillMessages))
+        }
+        $("#gameover").fadeIn();
+        $(window).on('keydown', e => {
+            if (e.type == 'keydown' && e.key == 'Escape') {
+                window.location = 'title.html';
+            }
+        })
+    }, 5000)
 
     gameIsOver = true;
 }
@@ -803,15 +867,30 @@ function damnToHell() {
     let $sun = $("#sun-character")
     for (let i = 0; i < amount; i++) {
         setTimeout(() => {
-            fireballSound.currentTime = 0
-            fireballSound.volume = 0.8
-            fireballSound.play()
-            let l = $sun.position().left - 5;
-            let h = randInt(50, $window.height() - 50);
-            let yVel = randInt(-10, 10)
-            let prt = new FireBallParticle(l, h, 10, yVel);
-            prt.img.classList.add('massive');
-            stars.push(prt)
+            if (Math.random() < 0.85) {
+                fireballSound.currentTime = 0
+                fireballSound.volume = 0.8
+                fireballSound.play()
+                let l = $sun.position().left - 5;
+                let h = randInt(50, $window.height() - 50);
+                let yVel = randInt(-10, 10)
+                let prt = new FireBallParticle(l, h, 10, yVel);
+                prt.img.classList.add('massive');
+                stars.push(prt)
+            } else {
+                laserSound.currentTime = 0
+                laserSound.volume = 0.8
+                laserSound.play()
+                let laserLen = randInt(450, 800);
+                let x = $sun.position().left - laserLen;
+                let y = randInt(50, $window.height() - 50);
+                let yVel = 0;
+                if (Math.random() < 0.5) {
+                    yVel = randInt(-20, 20)
+                }
+                let particle = new LaserParticle(x, y, 20, yVel, laserLen)
+                lasers.push(particle)
+            }
         }, 100 * i)
     }
 }
@@ -821,16 +900,20 @@ function sendToTheMoon() {
     let $moon = $("#moon-character")
     for (let i = 0; i < amount; i++) {
         setTimeout(() => {
-            starFireSound.currentTime = 0
-            starFireSound.volume = 0.8
-            starFireSound.play()
-            let l = $moon.position().left - 5;
-            let h = $moon.position().top + 75;
-            let yVel = randInt(-10, 10)
-            let prt = new StarParticle(l, h, 10, yVel);
-            prt.img.classList.add('massive');
-            stars.push(prt)
-        }, 100 * i)
+            if (Math.random() < 0.85) {
+                starFireSound.currentTime = 0
+                starFireSound.volume = 0.8
+                starFireSound.play()
+                let l = $moon.position().left - 5;
+                let h = $moon.position().top + 75;
+                let yVel = randInt(-10, 10)
+                let prt = new StarParticle(l, h, 10, yVel);
+                prt.img.classList.add('massive');
+                stars.push(prt)
+            } else {
+                starGrenade()
+            }
+        }, 150 * i)
     }
 }
 
