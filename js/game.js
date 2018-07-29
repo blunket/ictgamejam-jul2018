@@ -14,6 +14,12 @@ fireballSound.volume = 0.2;
 var laserSound = new Audio('../music/laser.mp3');
 laserSound.volume = 0.2;
 
+var anvilSound = new Audio('../music/anvil.mp3');
+anvilSound.volume = 0.75;
+
+var hitSound = new Audio('../music/punch.mp3');
+hitSound.volume = 0.75;
+
 var $player = $("#player");
 var playerXVel = 0;
 var playerYVel = 0;
@@ -217,6 +223,9 @@ function startGame() {
             if (Date.now() - lastEmergency > 10000) {
                 earthEmergency();
             } else {
+                anvilSound.pause();
+                anvilSound.currentTime = 0;
+                anvilSound.play();
                 $("#player img").shake({ direction: 'left', distance: 10, times: 2 })
             }
         })
@@ -683,6 +692,9 @@ function playerHit() {
     if ($('.playerhit').length > 0) {
         return;
     }
+    hitSound.pause();
+    hitSound.currentTime = 0;
+    hitSound.play();
     playerHits++;
 
     $player.addClass('playerhit')
